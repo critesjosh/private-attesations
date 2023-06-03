@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 import "../src/Maga.sol";
 import "../circuits/contract/plonk_vk.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MagaTest is Test {
     using ECDSA for bytes32;
@@ -30,25 +31,26 @@ contract MagaTest is Test {
 
         // make 10 identifiers
         for(uint i; i <10 ; i++){
-            string memory message = "message nonce: " + string (i);
+            bytes memory message = abi.encodePacked("message nonce:", i);
             bytes32 digest = keccak256(message).toEthSignedMessageHash();
-            (uint8 v, bytes32 r, bytes32 s) = vm.sign(user_private_key, digest);
+            (, bytes32 r, bytes32 s) = vm.sign(user_private_key, digest);
             // the signature that will be hashed in the circuit is just r, s
             bytes memory signature = bytes.concat(r, s);
-            identifiers[i] = sha256(signature);
+            identifiers.push(sha256(signature));
         }
 
-        string memory proof = vm.readLine("./circuits/proofs/p.proof");
-        proofBytes = vm.parseBytes(proof);
+        // string memory proof = vm.readLine("./circuits/proofs/p.proof");
+        // proofBytes = vm.parseBytes(proof);
     }
 
     function test_AddAttestation() public {
 
-        string memory message = "I am attesting to " + string (identifiers[0]);
+        bytes memory message = abi.encodePacked("I am attesting to", identifiers[0]);
         bytes32 digest = keccak256(message).toEthSignedMessageHash();
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(attester_private_key, digest);
-        // pack the 
-        string memory attestation = abi.encodePacked(message, digest, v, r, s);
-        emit log(attestation);
+        // pack the attestions, message hash and signature together
+        bytes memory attestation = abi.encode(message, digest, v, r, s);
+        attestationsContract.attest(identifiers[0], attestation);
+        emit log_bytes(attestation);
     }
 }
