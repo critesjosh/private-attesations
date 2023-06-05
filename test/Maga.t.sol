@@ -45,7 +45,6 @@ contract MagaTest is Test {
     }
 
     function test_AddAttestation() public {
-
         bytes memory message = abi.encodePacked("I am attesting to", identifiers[0]);
         bytes32 digest = keccak256(message).toEthSignedMessageHash();
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(attester_private_key, digest);

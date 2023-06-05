@@ -11,8 +11,8 @@ contract Maga {
     struct Attestation {
         string data;
         uint8 v;
-        uint32 r;
-        uint32 s;
+        bytes32 r;
+        bytes32 s;
     }
     
     // identifier => attestation
@@ -33,6 +33,7 @@ contract Maga {
         bytes32[] memory _publicInputs, 
         uint _attestationIndex) 
         public
+        view
         returns (Attestation memory) {
             verifier.verify(_proof, _publicInputs);
             return attestations[_publicInputs[0]][_attestationIndex];
