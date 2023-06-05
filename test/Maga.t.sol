@@ -5,7 +5,6 @@ import "forge-std/Test.sol";
 import "../src/Maga.sol";
 import "../circuits/contract/plonk_vk.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract MagaTest is Test {
     using ECDSA for bytes32;
@@ -36,6 +35,8 @@ contract MagaTest is Test {
             (, bytes32 r, bytes32 s) = vm.sign(user_private_key, digest);
             // the signature that will be hashed in the circuit is just r, s
             bytes memory signature = bytes.concat(r, s);
+            // need to update to use pedersen hashes
+            // maybe foreign function util https://book.getfoundry.sh/cheatcodes/ffi?highlight=#ffi
             identifiers.push(sha256(signature));
         }
 
