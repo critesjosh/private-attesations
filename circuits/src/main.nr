@@ -5,12 +5,15 @@ use dep::std;
 global NUM_IDENTIFIERS = 20;
 
 // identifier_index should be even since we are getting the 'x' output of flattened array of [x,y] values
-fn main(pub_key_x : [u8; 32], 
+// keep identifier as the first input so its always at _publicInputs[0] in the Solidity contract
+fn main(identifier : pub Field,
+        identifier_index : Field,
+        pub_key_x : [u8; 32], 
         pub_key_y : [u8; 32], 
         signature: [u8; 64], 
-        message_hash: [u8; 32], 
-        identifier_index: Field) 
-        -> pub Field 
+        message_hash : [u8; 32] 
+        ) 
+        // -> pub Field 
     {
     let isValid = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, signature, message_hash);
     assert(isValid == 1);
@@ -34,12 +37,16 @@ fn main(pub_key_x : [u8; 32],
             // new identifier is the hash of the previous
             let prev_identifier = [identifiers[j-2], identifiers[j-1]];
             identifiers[j] = std::hash::pedersen(prev_identifier)[0];
+            // can be added when we have loop breaks in noir
+            // if(identifier == identifiers[j]){
+            //     break;
+            // }
             identifiers[j+1] = std::hash::pedersen(prev_identifier)[1];
         }
     }
 
     // check that the
-    identifiers[identifier_index]
+    assert(identifiers[identifier_index] == identifier);
 }
 
 // #[test]
