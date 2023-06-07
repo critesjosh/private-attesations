@@ -52,6 +52,8 @@ fn main(identifier : pub Field,
                 }
             }
         }
+    } else {
+        assert(identifiers[0] == identifier);
     }
 }
 
