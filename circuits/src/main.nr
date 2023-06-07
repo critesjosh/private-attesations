@@ -30,23 +30,29 @@ fn main(identifier : pub Field,
     identifiers[0] = master_seed[0];
     identifiers[1] = master_seed[1];
 
+    let mut target_identifier = 0;
+
     if(identifier_index > 0) {
         for i in 0..20 {
-            // multiply by 2 since we are working with a flattened array
-            let j = i * 2;
-            // new identifier is the hash of the previous
-            let prev_identifier = [identifiers[j-2], identifiers[j-1]];
-            identifiers[j] = std::hash::pedersen(prev_identifier)[0];
-            // can be added when we have loop breaks in noir
-            // if(identifier == identifiers[j]){
-            //     break;
-            // }
-            identifiers[j+1] = std::hash::pedersen(prev_identifier)[1];
+            // if the target has been found, skip future iterations
+            if(target_identifier == 0){
+                // multiply by 2 since we are working with a flattened array
+                let j = i * 2;
+                // new identifier is the hash of the previous
+                let prev_identifier = [identifiers[j-2], identifiers[j-1]];
+
+                // hash the previous identifier to get the new identifier
+                let new_identifier = std::hash::pedersen(prev_identifier);
+                identifiers[j] = new_identifier[0];
+                identifiers[j+1] = new_identifier[1];
+
+                if(identifier == identifiers[j]){
+                    target_identifier = identifiers[j];
+                    assert(target_identifier == identifier);
+                }
+            }
         }
     }
-
-    // check that the
-    assert(identifiers[identifier_index] == identifier);
 }
 
 // #[test]
