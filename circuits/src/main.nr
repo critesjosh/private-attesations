@@ -13,7 +13,6 @@ fn main(identifier : pub Field,
         signature: [u8; 64], 
         message_hash : [u8; 32] 
         ) 
-        // -> pub Field 
     {
     let isValid = std::ecdsa_secp256k1::verify_signature(pub_key_x, pub_key_y, signature, message_hash);
     assert(isValid == 1);
@@ -55,6 +54,7 @@ fn main(identifier : pub Field,
     } else {
         assert(identifiers[0] == identifier);
     }
+
 }
 
 // #[test]

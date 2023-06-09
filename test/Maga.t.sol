@@ -1,6 +1,15 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
+// Given the updated identifier generation based on pedersen hashes, testing
+// might have to be done in typescript. The noir TS implementations should match
+// the language implementions.
+
+// TODO: check if this Solidity implementation of pedersen matches
+// https://github.com/Kelvyne/starknet-storage-proof-solidity/blob/main/contracts/PedersenHash.sol
+
+// I am keeping this file for reference.
+
 import "forge-std/Test.sol";
 import "../src/Maga.sol";
 import "../circuits/contract/plonk_vk.sol";
@@ -49,8 +58,16 @@ contract MagaTest is Test {
         bytes32 digest = keccak256(message).toEthSignedMessageHash();
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(attester_private_key, digest);
         // pack the attestions, message hash and signature together
-        bytes memory attestation = abi.encode(message, digest, v, r, s);
-        attestationsContract.attest(identifiers[0], attestation);
+
+        // digest is bytes 0-31
+        // r is byte 32 - 63
+        // s is byte 64 - 95
+        // v is byte 96
+        // message is the rest
+
+        bytes memory attestation = abi.encodePacked(digest, r, s, v, message);
+        attestationsContract.attest(identifiers[0], string(attestation));
+        emit log_bytes32(digest);
         emit log_bytes(attestation);
     }
 }

@@ -7,23 +7,22 @@ contract Maga {
     
     UltraVerifier verifier;
 
-
-    struct Attestation {
-        string data;
-        uint8 v;
-        bytes32 r;
-        bytes32 s;
-    }
+    // struct Attestation {
+    //     string data;
+    //     uint8 v;
+    //     bytes32 r;
+    //     bytes32 s;
+    // }
     
     // identifier => attestation
-    mapping(bytes32 => Attestation[]) attestations;
+    mapping(bytes32 => string[]) attestations;
     
     constructor(address _verifier){
         verifier = UltraVerifier(_verifier);
     }
 
     // _identifier is the message_hash used in the circuit
-    function attest(bytes32 _identifier, Attestation memory _a) public {
+    function attest(bytes32 _identifier, string memory _a) public {
         attestations[_identifier].push(_a);
     }
 
@@ -34,7 +33,7 @@ contract Maga {
         uint _attestationIndex) 
         public
         view
-        returns (Attestation memory) {
+        returns (string memory) {
             verifier.verify(_proof, _publicInputs);
             return attestations[_publicInputs[0]][_attestationIndex];
     }
